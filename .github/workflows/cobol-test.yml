@@ -1,0 +1,110 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu/latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a set of commands using the runners shell
+      - name: Installation des packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install automake libtool libdb5.3-dev libxml2-dev \
+            libcjson-dev bison flex help2man gettext texlive subversion
+            
+      - name: Get GNU Cobol
+        run: |
+          svn checkout http://svn.code.sf.net/p/gnucobol/code/branches/gnucobol-3.x
+          cd gnucobol-3.x
+
+      - name: Build environment setup
+        run: |
+          mkdir _build
+          export TERM="vt100"
+          echo "TERM=$TERM" >> $GITHUB_ENV
+          echo "INSTALL_PATH=$(pwd)/_install" >> $GITHUB_ENV
+          
+      - name: configure
+        run: |
+          ./configure
+          autoreconf --install --force
+       
+      - name: make
+        run: |
+         make
+         sudo make install
+         
+      - name: ldconfig
+        run: sudo ldconfig
+        
+      - name: cobol version
+        run: cobc --version
+        
+  coverage:
+    # The type of runner that the job will run on
+    runs-on: ubuntu/latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a set of commands using the runners shell
+      - name: Installation des packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install automake libtool libdb5.3-dev libxml2-dev \
+            libcjson-dev bison flex help2man gettext texlive subversion
+            
+      - name: Get GNU Cobol
+        run: |
+          svn checkout http://svn.code.sf.net/p/gnucobol/code/branches/gnucobol-3.x
+          cd gnucobol-3.x
+
+      - name: Build environment setup
+        run: |
+          mkdir _build
+          export TERM="vt100"
+          echo "TERM=$TERM" >> $GITHUB_ENV
+          echo "INSTALL_PATH=$(pwd)/_install" >> $GITHUB_ENV
+          
+      - name: configure
+        run: |
+          ./configure
+          autoreconf --install --force
+       
+      - name: make
+        run: |
+         make
+         sudo make install
+         
+      - name: ldconfig
+        run: sudo ldconfig
+        
+      - name: make check
+        run: make check
+     
+     
+     
+     
+     
